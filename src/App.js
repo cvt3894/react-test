@@ -1,26 +1,70 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { render } from 'react-dom';
+import {
+  Route,
+  Switch,
+  BrowserRouter,
+} from 'react-router-dom';
+import {
+  CSSTransition,
+  TransitionGroup
+} from 'react-transition-group';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+import './style.css';
+import Home from './Home';
+import Person from './Person';
+import Error404 from './Error404';
+
+// Does the user's browser support the HTML5 history API?
+// If the user's browser doesn't support the HTML5 history API then we
+// will force full page refreshes on each page change.
+const supportsHistory = 'pushState' in window.history;
+
+const App = ({ }) => (
+  <BrowserRouter forceRefresh={!supportsHistory}>
+    <div>
+      <main>
+        <Route
+          render={({ location }) => {
+            const { pathname } = location;
+            return (
+              <TransitionGroup>
+                <CSSTransition
+                  key={pathname}
+                  classNames="page"
+                  timeout={{
+                    enter: 1000,
+                    exit: 1000,
+                  }}
+                >
+                  <Route
+                    location={location}
+                    render={() => (
+                      <Switch>
+                        <Route
+                          exact
+                          path="/"
+                          component={Home}
+                        />
+                        <Route
+                          path="/person/:username"
+                          component={Person}
+                          exact
+                        />
+                        <Route
+                          component={Error404}
+                        />
+                      </Switch>
+                    )}
+                  />
+                </CSSTransition>
+              </TransitionGroup>
+            );
+          }}
+        />
+      </main>
     </div>
-  );
-}
+  </BrowserRouter>
+)
 
 export default App;
